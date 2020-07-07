@@ -1,0 +1,1 @@
+{"rustc":12217307662193597186,"features":"[\"js-sys\", \"wasm-bindgen\", \"wasm-bindgen_rs\", \"web-sys\"]","target":6554940088121385973,"profile":2574335274271406459,"path":16252484562584860194,"deps":[],"local":[{"CheckDepInfo":{"dep_info":"release/.fingerprint/instant-3011f1fa35f1d5d5/dep-lib-instant-3011f1fa35f1d5d5"}}],"rustflags":[],"metadata":124121305543948399}

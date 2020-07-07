@@ -1,0 +1,10 @@
+/Users/zachary.roga/Documents/town_builder/target/release/deps/bracket_pathfinding-ab23d41ab723d3c5.rmeta: /Users/zachary.roga/.cargo/registry/src/github.com-1ecc6299db9ec823/bracket-pathfinding-0.8.1/src/lib.rs /Users/zachary.roga/.cargo/registry/src/github.com-1ecc6299db9ec823/bracket-pathfinding-0.8.1/src/astar.rs /Users/zachary.roga/.cargo/registry/src/github.com-1ecc6299db9ec823/bracket-pathfinding-0.8.1/src/dijkstra.rs /Users/zachary.roga/.cargo/registry/src/github.com-1ecc6299db9ec823/bracket-pathfinding-0.8.1/src/fieldofview.rs
+
+/Users/zachary.roga/Documents/town_builder/target/release/deps/libbracket_pathfinding-ab23d41ab723d3c5.rlib: /Users/zachary.roga/.cargo/registry/src/github.com-1ecc6299db9ec823/bracket-pathfinding-0.8.1/src/lib.rs /Users/zachary.roga/.cargo/registry/src/github.com-1ecc6299db9ec823/bracket-pathfinding-0.8.1/src/astar.rs /Users/zachary.roga/.cargo/registry/src/github.com-1ecc6299db9ec823/bracket-pathfinding-0.8.1/src/dijkstra.rs /Users/zachary.roga/.cargo/registry/src/github.com-1ecc6299db9ec823/bracket-pathfinding-0.8.1/src/fieldofview.rs
+
+/Users/zachary.roga/Documents/town_builder/target/release/deps/bracket_pathfinding-ab23d41ab723d3c5.d: /Users/zachary.roga/.cargo/registry/src/github.com-1ecc6299db9ec823/bracket-pathfinding-0.8.1/src/lib.rs /Users/zachary.roga/.cargo/registry/src/github.com-1ecc6299db9ec823/bracket-pathfinding-0.8.1/src/astar.rs /Users/zachary.roga/.cargo/registry/src/github.com-1ecc6299db9ec823/bracket-pathfinding-0.8.1/src/dijkstra.rs /Users/zachary.roga/.cargo/registry/src/github.com-1ecc6299db9ec823/bracket-pathfinding-0.8.1/src/fieldofview.rs
+
+/Users/zachary.roga/.cargo/registry/src/github.com-1ecc6299db9ec823/bracket-pathfinding-0.8.1/src/lib.rs:
+/Users/zachary.roga/.cargo/registry/src/github.com-1ecc6299db9ec823/bracket-pathfinding-0.8.1/src/astar.rs:
+/Users/zachary.roga/.cargo/registry/src/github.com-1ecc6299db9ec823/bracket-pathfinding-0.8.1/src/dijkstra.rs:
+/Users/zachary.roga/.cargo/registry/src/github.com-1ecc6299db9ec823/bracket-pathfinding-0.8.1/src/fieldofview.rs:
