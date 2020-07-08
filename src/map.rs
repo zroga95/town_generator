@@ -111,8 +111,71 @@ pub fn new_map_rooms_and_corridors() -> (Vec<Rect>, Vec<TileType>) {
 
     (rooms, map)
 }
-    
 
+pub fn new_map_clustered_rooms(dir: i32) -> (Vec<Rect>, Vec<TileType>) {
+    let mut map = vec![TileType::Wall; 80*50];
+
+    let mut rooms : Vec<Rect> = Vec::new();
+    const MAX_ROOMS : i32 = 10;
+    const MIN_SIZE : i32 = 6;
+    const MAX_SIZE : i32 = 10;
+
+    let mut rng = RandomNumberGenerator::new();
+
+    let w = rng.range(MIN_SIZE, MAX_SIZE);
+    let h = rng.range(MIN_SIZE, MAX_SIZE);
+    let x = rng.roll_dice(1, 80 - w - 1) - 1;
+    let y = rng.roll_dice(1, 50 - h - 1) - 1;
+    let base_room = Rect::new(x, y, w, h);
+    rooms.push(base_room);
+    apply_room_to_map(&base_room, &mut map);
+for _i in 1..MAX_ROOMS {
+        let border_room = rooms[rng.range(0,rooms.len())];
+        let w = rng.range(MIN_SIZE, MAX_SIZE);
+        let h = rng.range(MIN_SIZE, MAX_SIZE);
+        let side_select = rng.range(0,3);
+
+        let (x, y) = side_switcher(side_select, border_room); 
+
+        let new_room = Rect::new(x, y, w, h);
+        let mut ok = true;
+        
+        for other_room in rooms.iter() {
+            if new_room.intersect(other_room) { ok = false }
+            
+        }
+        println!("{:?}", (new_room.center(),ok));
+        if ok {
+            apply_room_to_map(&new_room, &mut map);
+            if !rooms.is_empty() {
+                let (new_x, new_y) = new_room.center();
+                let (prev_x, prev_y) = rooms[rooms.len()-1].center();
+                if rng.range(0,2) == 1 {
+                    apply_horizontal_tunnel(&mut map, prev_x, new_x, prev_y);
+                    apply_vertical_tunnel(&mut map, prev_y, new_y, new_x);
+                } else {
+                    apply_vertical_tunnel(&mut map, prev_y, new_y, prev_x);
+                    apply_horizontal_tunnel(&mut map, prev_x, new_x, new_y);
+                }
+            }
+
+            rooms.push(new_room);
+        }
+    }
+
+    (rooms, map)
+}
+
+pub fn side_switcher(side: i32, room:Rect) -> (i32,i32) {
+    let mut rng = RandomNumberGenerator::new();
+    match side {
+        0 => return (rng.range(room.x1+2,room.x2-2), room.y1-1),
+        1 =>   return (room.x1-1, rng.range(room.y1+2,room.y2-2)),
+        2 => return (rng.range(room.x1+2,room.x2-2), room.y2+1),
+        3 =>    return (room.x2+1, rng.range(room.y1+2,room.y2-2)),
+        _ => (1,1)
+    }
+}
 
 pub fn draw_map(map: &[TileType], ctx : &mut Rltk) {
     let mut y = 0;
