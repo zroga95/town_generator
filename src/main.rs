@@ -51,9 +51,7 @@ fn main() -> rltk::BError {
     gs.ecs.register::<Renderable>();
     gs.ecs.register::<Player>();
 
-    //let (rooms, map) = new_map_rooms_and_corridors();
-    let (rooms, map) = new_map_clustered_rooms(0);
-
+    let (rooms, map) = new_map_clustered_rooms(0,20);
     gs.ecs.insert(map);
     let (player_x, player_y) = rooms[0].center();
 

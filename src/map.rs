@@ -2,6 +2,7 @@ use rltk::{ RGB, Rltk, RandomNumberGenerator };
 use super::{Rect};
 use std::cmp::{max, min};
 
+
 #[derive(PartialEq, Copy, Clone)]
 pub enum TileType {
     Wall, Floor
@@ -68,98 +69,70 @@ fn apply_vertical_tunnel(map: &mut [TileType], y1:i32, y2:i32, x:i32) {
     }
 }
 
-/// Makes a new map using the algorithm from http://rogueliketutorials.com/tutorials/tcod/part-3/
-/// This gives a handful of random rooms and corridors joining them together.
-pub fn new_map_rooms_and_corridors() -> (Vec<Rect>, Vec<TileType>) {
+pub fn new_map_clustered_rooms(dir: i32, room_count: i32) -> (Vec<Rect>, Vec<TileType>) {
     let mut map = vec![TileType::Wall; 80*50];
 
     let mut rooms : Vec<Rect> = Vec::new();
-    const MAX_ROOMS : i32 = 30;
     const MIN_SIZE : i32 = 6;
     const MAX_SIZE : i32 = 10;
 
+    let row_size : i32 = (room_count as f64).sqrt() as i32 + 1;
     let mut rng = RandomNumberGenerator::new();
 
-    for _i in 0..MAX_ROOMS {
-        let w = rng.range(MIN_SIZE, MAX_SIZE);
-        let h = rng.range(MIN_SIZE, MAX_SIZE);
-        let x = rng.roll_dice(1, 80 - w - 1) - 1;
-        let y = rng.roll_dice(1, 50 - h - 1) - 1;
-        let new_room = Rect::new(x, y, w, h);
-        let mut ok = true;
-        for other_room in rooms.iter() {
-            if new_room.intersect(other_room) { ok = false }
-            println!("{:?}", other_room.center());
-        }
-        if ok {
-            apply_room_to_map(&new_room, &mut map);
-            if !rooms.is_empty() {
-                let (new_x, new_y) = new_room.center();
-                let (prev_x, prev_y) = rooms[rooms.len()-1].center();
-                if rng.range(0,2) == 1 {
-                    apply_horizontal_tunnel(&mut map, prev_x, new_x, prev_y);
-                    apply_vertical_tunnel(&mut map, prev_y, new_y, new_x);
-                } else {
-                    apply_vertical_tunnel(&mut map, prev_y, new_y, prev_x);
-                    apply_horizontal_tunnel(&mut map, prev_x, new_x, new_y);
-                }
-            }
-
-            rooms.push(new_room);
-        }
-    }
-
-    (rooms, map)
-}
-
-pub fn new_map_clustered_rooms(dir: i32) -> (Vec<Rect>, Vec<TileType>) {
-    let mut map = vec![TileType::Wall; 80*50];
-
-    let mut rooms : Vec<Rect> = Vec::new();
-    const MAX_ROOMS : i32 = 10;
-    const MIN_SIZE : i32 = 6;
-    const MAX_SIZE : i32 = 10;
-
-    let mut rng = RandomNumberGenerator::new();
-
-    let w = rng.range(MIN_SIZE, MAX_SIZE);
-    let h = rng.range(MIN_SIZE, MAX_SIZE);
-    let x = rng.roll_dice(1, 80 - w - 1) - 1;
-    let y = rng.roll_dice(1, 50 - h - 1) - 1;
-    let base_room = Rect::new(x, y, w, h);
-    rooms.push(base_room);
-    apply_room_to_map(&base_room, &mut map);
-for _i in 1..MAX_ROOMS {
-        let border_room = rooms[rng.range(0,rooms.len())];
-        let w = rng.range(MIN_SIZE, MAX_SIZE);
-        let h = rng.range(MIN_SIZE, MAX_SIZE);
-        let side_select = rng.range(0,3);
-
-        let (x, y) = side_switcher(side_select, border_room); 
-
-        let new_room = Rect::new(x, y, w, h);
-        let mut ok = true;
+    //apply_room_to_map(&base_room, &mut map);
+    let mut base_room = Rect::new(1,1,1,1);
+    for _i in 1..row_size { 
         
-        for other_room in rooms.iter() {
-            if new_room.intersect(other_room) { ok = false }
-            
+        let w = rng.range(MIN_SIZE, MAX_SIZE);
+        let h = rng.range(MIN_SIZE, MAX_SIZE);
+        
+        if rooms.len() < 1 {
+            //start the first room
+            let x = 10-w/2;
+            let y = 5;
+            base_room = Rect::new(x, y, w, h);
         }
-        println!("{:?}", (new_room.center(),ok));
-        if ok {
-            apply_room_to_map(&new_room, &mut map);
-            if !rooms.is_empty() {
-                let (new_x, new_y) = new_room.center();
-                let (prev_x, prev_y) = rooms[rooms.len()-1].center();
-                if rng.range(0,2) == 1 {
-                    apply_horizontal_tunnel(&mut map, prev_x, new_x, prev_y);
-                    apply_vertical_tunnel(&mut map, prev_y, new_y, new_x);
-                } else {
-                    apply_vertical_tunnel(&mut map, prev_y, new_y, prev_x);
-                    apply_horizontal_tunnel(&mut map, prev_x, new_x, new_y);
-                }
-            }
+        else{
+            //start a new row of rooms
+            let (x, y) = side_switcher(2, base_room); 
+            base_room = Rect::new(x, y+1, w, h);
+            apply_vertical_tunnel(&mut map, rooms[0].center().1, 
+                    base_room.center().1, base_room.center().0);
+        }
+        rooms.push(base_room);
+        apply_room_to_map(&base_room, &mut map);
+        let mut border_room = base_room;
+        println!("{:?}", (border_room.x1, border_room.x2, "B"));
+        //build a row of rooms
+        for _j in 1..row_size{
+            let (x, y) = side_switcher(3, border_room);
+            let w = rng.range(MIN_SIZE, MAX_SIZE);
+            let h = rng.range(MIN_SIZE, MAX_SIZE);
+            print!("{:?}", (x, y, w, h));
+            let border_room = Rect::new(x, y, w, h);
 
-            rooms.push(new_room);
+            let mut ok = true;
+            for other_room in rooms.iter() {
+                if border_room.intersect(other_room) { ok = false }
+                
+            }
+            println!("{:?}", (border_room.x1, border_room.x2, ok));
+            if ok {
+                apply_room_to_map(&border_room, &mut map);
+                if !rooms.is_empty() {
+                    let (new_x, new_y) = border_room.center();
+                    let (prev_x, prev_y) = rooms[rooms.len()-1].center();
+                    if rng.range(0,2) == 1 {
+                        apply_horizontal_tunnel(&mut map, prev_x, new_x, prev_y);
+                        apply_vertical_tunnel(&mut map, prev_y, new_y, new_x);
+                    } else {
+                        apply_vertical_tunnel(&mut map, prev_y, new_y, prev_x);
+                        apply_horizontal_tunnel(&mut map, prev_x, new_x, new_y);
+                    }
+                }
+
+                //rooms.push(new_room);
+            }
         }
     }
 
@@ -169,10 +142,10 @@ for _i in 1..MAX_ROOMS {
 pub fn side_switcher(side: i32, room:Rect) -> (i32,i32) {
     let mut rng = RandomNumberGenerator::new();
     match side {
-        0 => return (rng.range(room.x1+2,room.x2-2), room.y1-1),
-        1 =>   return (room.x1-1, rng.range(room.y1+2,room.y2-2)),
-        2 => return (rng.range(room.x1+2,room.x2-2), room.y2+1),
-        3 =>    return (room.x2+1, rng.range(room.y1+2,room.y2-2)),
+        0 => return (rng.range(room.x1-3,room.x2+3), room.y1-1),
+        1 =>   return (room.x1-1, rng.range(room.y1-3,room.y2+3)),
+        2 => return (rng.range(room.x1-3,room.x1+3), room.y2+1),
+        3 =>    return (room.x2+1, rng.range(room.y1-3,room.y1+3)),
         _ => (1,1)
     }
 }
