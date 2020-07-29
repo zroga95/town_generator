@@ -9,7 +9,6 @@ reorder_impl_items = true
 wrap_comments = true
 normalize_comments = true
 error_on_unformatted = true
-normalize_doc_attributes = true
 
 # Ignore generated files
 ignore =  ["**/*_generated.rs"]

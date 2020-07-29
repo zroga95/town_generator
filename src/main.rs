@@ -4,11 +4,11 @@ use specs::prelude::*;
 mod component;
 pub use component::*;
 mod map;
-pub use map::*;
+use map::*;
 mod player;
 use player::*;
 mod rect;
-pub use rect::Rect;
+use rect::Rect;
 
 pub struct State {
     pub ecs: World,
