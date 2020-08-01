@@ -6,7 +6,12 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = ["opengl"]
+curses = ["rltk/curses"]
+opengl = ["rltk/opengl"]
+
 [dependencies]
-rltk = {version = "0.8.0"}
+rltk = {version = "0.8.0", default-features=false }
 specs = "0.16.1"
 specs-derive = "0.4.1"
