@@ -14,6 +14,7 @@ pub fn xy_idx(x: i32, y: i32) -> usize {
 
 /// Makes a map with solid boundaries and 400 randomly placed walls. No
 /// guarantees that it won't look awful.
+#[allow(unused)]
 pub fn new_map_test() -> Vec<TileType> {
     let mut map = vec![TileType::Floor; 80 * 50];
 
@@ -70,7 +71,7 @@ fn apply_vertical_tunnel(map: &mut [TileType], y1: i32, y2: i32, x: i32) {
 }
 
 pub fn new_map_clustered_rooms(
-    dir: i32,
+    #[allow(unused)] dir: i32,
     room_count: i32,
 ) -> (Vec<Rect>, Vec<TileType>) {
     let mut map = vec![TileType::Wall; 80 * 50];
@@ -86,9 +87,10 @@ pub fn new_map_clustered_rooms(
     let mut base_room = Rect::new(1, 1, 1, 1);
     for _i in 1..row_size {
         let w = rng.range(MIN_SIZE, MAX_SIZE);
+
         let h = rng.range(MIN_SIZE, MAX_SIZE);
 
-        if rooms.len() < 1 {
+        if rooms.is_empty() {
             // start the first room
             let x = 10 - w / 2;
             let y = 5;
@@ -106,7 +108,7 @@ pub fn new_map_clustered_rooms(
         }
         rooms.push(base_room);
         apply_room_to_map(&base_room, &mut map);
-        let mut border_room = base_room;
+        let border_room = base_room;
         println!("{:?}", (border_room.x1, border_room.x2, "B"));
         // build a row of rooms
         for _j in 1..row_size {
@@ -148,10 +150,10 @@ pub fn new_map_clustered_rooms(
 pub fn side_switcher(side: i32, room: Rect) -> (i32, i32) {
     let mut rng = RandomNumberGenerator::new();
     match side {
-        0 => return (rng.range(room.x1 - 3, room.x2 + 3), room.y1 - 1),
-        1 => return (room.x1 - 1, rng.range(room.y1 - 3, room.y2 + 3)),
-        2 => return (rng.range(room.x1 - 3, room.x1 + 3), room.y2 + 1),
-        3 => return (room.x2 + 1, rng.range(room.y1 - 3, room.y1 + 3)),
+        0 => (rng.range(room.x1 - 3, room.x2 + 3), room.y1 - 1),
+        1 => (room.x1 - 1, rng.range(room.y1 - 3, room.y2 + 3)),
+        2 => (rng.range(room.x1 - 3, room.x1 + 3), room.y2 + 1),
+        3 => (room.x2 + 1, rng.range(room.y1 - 3, room.y1 + 3)),
         _ => (1, 1),
     }
 }
