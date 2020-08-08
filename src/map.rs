@@ -3,8 +3,9 @@ use rltk::{RandomNumberGenerator, Rltk, RGB};
 use std::cmp::{max, min};
 
 // TODO: Figure out how to handle out of bounds writes to the Tile vec
+// TODO: Make world dims not magic numbers
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(PartialEq, Copy, Clone, Debug)]
 pub enum TileType {
     Wall,
     Floor,
@@ -12,6 +13,12 @@ pub enum TileType {
 
 pub fn xy_idx(x: i32, y: i32) -> usize {
     (y as usize * 80) + x as usize
+}
+
+pub fn idx_to_xy(idx: usize) -> (i32, i32) {
+    let x = idx % 80;
+    let y = idx / 80;
+    (x as i32, y as i32)
 }
 
 /// Makes a map with solid boundaries and 400 randomly placed walls. No
@@ -214,6 +221,65 @@ pub fn draw_map(map: &[TileType], ctx: &mut Rltk) {
         if x > 79 {
             x = 0;
             y += 1;
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashSet;
+
+    fn make_map() -> Vec<TileType> {
+        vec![TileType::Wall; 80 * 50]
+    }
+
+    #[test]
+    fn test_xy_idx() {
+        let inputs = vec![(0, 0), (10, 15), (79, 49)];
+        let expected_outputs = vec![0, 1210, 3999];
+        assert_eq!(inputs.len(), expected_outputs.len());
+
+        for (input, expected_output) in inputs.iter().zip(expected_outputs) {
+            let output = xy_idx(input.0, input.1);
+            assert_eq!(output, expected_output)
+        }
+    }
+
+    #[test]
+    fn test_idx_to_xy() {
+        let inputs = vec![0, 1210, 3999];
+        let expected_outputs = vec![(0, 0), (10, 15), (79, 49)];
+        assert_eq!(inputs.len(), expected_outputs.len());
+
+        for (input, expected_output) in inputs.iter().zip(expected_outputs) {
+            let output = idx_to_xy(*input as usize);
+            assert_eq!(output, expected_output)
+        }
+    }
+
+    #[test]
+    fn test_apply_vertical_tunnel() {
+        let mut map = make_map();
+        let y1 = 10;
+        let y2 = 15;
+        let x = 5;
+        apply_vertical_tunnel(&mut map, y1, y2, x);
+
+        // Build the set of idxs that should be floors
+        let mut floor_idxs = HashSet::new();
+        for y_offset in 0..y2 - y1 + 1 {
+            let had_value = !floor_idxs.insert(xy_idx(x, y1 + y_offset));
+            assert!(!had_value);
+        }
+
+        for (idx, tile) in map.iter().enumerate() {
+            if floor_idxs.contains(&idx) {
+                assert_eq!(tile, &TileType::Floor)
+            } else {
+                println!("Tile: {:?}, {:?}", tile, idx_to_xy(idx));
+                assert_eq!(tile, &TileType::Wall)
+            }
         }
     }
 }
