@@ -7,3 +7,6 @@ target/
 
 # Get rid of macos silliness
 .DS_Store
+
+# Ignore IDE stuff
+.vscode/
