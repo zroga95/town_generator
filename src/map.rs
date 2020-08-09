@@ -5,7 +5,7 @@ use std::cmp::{max, min};
 // TODO: Figure out how to handle out of bounds writes to the Tile vec
 // TODO: Make world dims not magic numbers
 
-#[derive(PartialEq, Copy, Clone, Debug)]
+#[derive(Eq, PartialEq, Copy, Clone, Debug)]
 pub enum TileType {
     Wall,
     Floor,
@@ -15,6 +15,7 @@ pub fn xy_idx(x: i32, y: i32) -> usize {
     (y as usize * 80) + x as usize
 }
 
+#[allow(unused)]
 pub fn idx_to_xy(idx: usize) -> (i32, i32) {
     let x = idx % 80;
     let y = idx / 80;
@@ -66,9 +67,8 @@ fn apply_room_to_map(room: &Rect, map: &mut [TileType]) {
 fn apply_horizontal_tunnel(map: &mut [TileType], x1: i32, x2: i32, y: i32) {
     for x in min(x1, x2)..=max(x1, x2) {
         let idx = xy_idx(x, y);
-        if idx > 0 && idx < 80 * 50 {
-            map[idx as usize] = TileType::Floor;
-        }
+        assert!(idx < 80 * 50);
+        map[idx as usize] = TileType::Floor;
     }
 }
 
@@ -76,9 +76,8 @@ fn apply_horizontal_tunnel(map: &mut [TileType], x1: i32, x2: i32, y: i32) {
 fn apply_vertical_tunnel(map: &mut [TileType], y1: i32, y2: i32, x: i32) {
     for y in min(y1, y2)..=max(y1, y2) {
         let idx = xy_idx(x, y);
-        if idx > 0 && idx < 80 * 50 {
-            map[idx as usize] = TileType::Floor;
-        }
+        assert!(idx < 80 * 50);
+        map[idx as usize] = TileType::Floor;
     }
 }
 
@@ -258,28 +257,115 @@ mod tests {
         }
     }
 
+    /// Helper func that checks that all tiles are walls except for `floor_idxs`
+    fn check_map(map: &[TileType], floor_idxs: HashSet<usize>) {
+        assert_eq!(map.len(), 80 * 50);
+        for (idx, tile) in map.iter().enumerate() {
+            let coords = idx_to_xy(idx);
+            if floor_idxs.contains(&idx) {
+                assert_eq!(
+                    tile,
+                    &TileType::Floor,
+                    "Expected tile at {:?} to be floor",
+                    coords
+                )
+            } else {
+                assert_eq!(
+                    tile,
+                    &TileType::Wall,
+                    "Expected tile at {:?} to be wall",
+                    coords
+                )
+            }
+        }
+    }
+
     #[test]
     fn test_apply_vertical_tunnel() {
-        let mut map = make_map();
-        let y1 = 10;
-        let y2 = 15;
-        let x = 5;
-        apply_vertical_tunnel(&mut map, y1, y2, x);
-
-        // Build the set of idxs that should be floors
-        let mut floor_idxs = HashSet::new();
-        for y_offset in 0..y2 - y1 + 1 {
-            let had_value = !floor_idxs.insert(xy_idx(x, y1 + y_offset));
-            assert!(!had_value);
+        // Using a struct instead of a tuple to have explicit names
+        #[derive(Debug)]
+        struct Example {
+            x: i32,
+            y1: i32,
+            y2: i32,
         }
+        // All the differnet examples to test
+        let examples = vec![
+            Example {
+                x: 5,
+                y1: 10,
+                y2: 15,
+            },
+            Example {
+                x: 0,
+                y1: 0,
+                y2: 10,
+            },
+            Example {
+                x: 79,
+                y1: 40,
+                y2: 49,
+            },
+        ];
+        for example in examples {
+            // Pattern matches the struct to easily get the variables!
+            let Example { x, y1, y2 } = example;
+            println!("Checking {:?}", example);
+            let mut map = make_map();
+            apply_vertical_tunnel(&mut map, y1, y2, x);
 
-        for (idx, tile) in map.iter().enumerate() {
-            if floor_idxs.contains(&idx) {
-                assert_eq!(tile, &TileType::Floor)
-            } else {
-                println!("Tile: {:?}, {:?}", tile, idx_to_xy(idx));
-                assert_eq!(tile, &TileType::Wall)
+            // Build the set of idxs that should be floors
+            let mut floor_idxs = HashSet::new();
+            for y_offset in 0..y2 - y1 + 1 {
+                let had_value = !floor_idxs.insert(xy_idx(x, y1 + y_offset));
+                assert!(!had_value);
             }
+
+            check_map(&map, floor_idxs)
+        }
+    }
+
+    #[test]
+    fn test_apply_horizontal_tunnel() {
+        #[derive(Debug)]
+        struct Example {
+            x1: i32,
+            x2: i32,
+            y: i32,
+        }
+        // All the differnet examples to test
+        let examples = vec![
+            Example {
+                x1: 10,
+                x2: 15,
+                y: 5,
+            },
+            Example {
+                x1: 0,
+                x2: 10,
+                y: 0,
+            },
+            Example {
+                x1: 70,
+                x2: 79,
+                y: 49,
+            },
+        ];
+        for example in examples {
+            // Pattern matches the struct to easily get the variables!
+            let Example { x1, x2, y } = example;
+            println!("Checking {:?}", example);
+            let mut map = make_map();
+            apply_horizontal_tunnel(&mut map, x1, x2, y);
+
+            // Build the set of idxs that should be floors
+            let mut floor_idxs = HashSet::new();
+            for x_offset in 0..x2 - x1 + 1 {
+                let had_value = !floor_idxs.insert(xy_idx(x1 + x_offset, y));
+                assert!(!had_value);
+            }
+
+            check_map(&map, floor_idxs)
         }
     }
 }
