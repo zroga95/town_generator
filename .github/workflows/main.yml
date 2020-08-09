@@ -43,7 +43,7 @@ jobs:
   fmt:
     name: Formatting
     runs-on: ubuntu-latest
-    continue-on-error: true  # Don't block merges for formatting reasons (for now 😈)
+    # continue-on-error: true
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
