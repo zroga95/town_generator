@@ -16,7 +16,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cargo/
-          key: cache-cargo-deps-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml') }}
+          key: cache-cargo-deps-${{ runner.os }}-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml') }}
       - uses: actions-rs/cargo@v1
         with:
           command: check
@@ -35,7 +35,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cargo/
-          key: cache-cargo-deps-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml') }}
+          key: cache-cargo-deps-${{ runner.os }}-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml') }}
       - uses: actions-rs/cargo@v1
         with:
           command: test
@@ -43,7 +43,7 @@ jobs:
   fmt:
     name: Formatting
     runs-on: ubuntu-latest
-    continue-on-error: true  # Don't block merges for formatting reasons (for now 😈)
+    # continue-on-error: true
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -72,7 +72,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cargo/
-          key: cache-cargo-deps-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml') }}
+          key: cache-cargo-deps-${{ runner.os }}-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml') }}
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
