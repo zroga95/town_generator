@@ -5,12 +5,14 @@ use rltk::{RandomNumberGenerator, Rltk, RGB};
 
 pub fn new_map_cellular(max_rooms: u32) {
     let worlds = WorldInfo::default();
-    generator_rooms_vector(max_rooms, &worlds);
+    rects = generator_rooms_vector(max_rooms, &worlds);
+    let max_distance = u32;
+    pairs = check_closeness(max_distance, &rects);
 }
 
 pub fn generator_rooms_vector(max_rooms: u32, worlds: &WorldInfo) -> Vec<Rect> {
-    let min_size: u16 = 6;
-    let max_size: u16 = 10;
+    let min_size: u32 = 6;
+    let max_size: u32 = 10;
     let mut rng = RandomNumberGenerator::new();
     let mut rect_list: Vec<Rect> = Vec::new();
 
@@ -23,4 +25,18 @@ pub fn generator_rooms_vector(max_rooms: u32, worlds: &WorldInfo) -> Vec<Rect> {
         rect_list.push(new_room);
     }
     rect_list
+}
+
+pub fn check_closeness(max_distance:u32, rect_a: Rect, rects: Vec<Rect>) -> Vec<Rect>{
+    let mut rect_pairs: Vec<Rect> = Vec::new();
+    for i in rects{
+        for j in rects{
+            if i!=j && ((rect[j],rect[i])) !in rect_pairs{//probably wrong syntax for "not in"
+                if rects[i].distance(rect[j]){
+                    rect_pairs.add((rect[i],rect[j]))
+                }
+            } 
+        }
+    }
+
 }
