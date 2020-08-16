@@ -12,10 +12,11 @@ curses = ["rltk/curses"]
 opengl = ["rltk/opengl"]
 
 [dependencies]
-rltk = {version = "0.8.0", default-features=false }
+rltk = { version = "0.8.0", default-features = false }
 specs = "0.16.1"
 specs-derive = "0.4.1"
 petgraph = "0.5.0"
+num = "0.3.0"
 
 [target.wasm32-unknown-unknown.dependencies]
 # wasm-bindgen currently requires that the CLI tool and the library version exactly match.

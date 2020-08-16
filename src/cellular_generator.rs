@@ -2,7 +2,6 @@ use super::Rect;
 use super::WorldInfo;
 use petgraph::Graph;
 use rltk::{RandomNumberGenerator, Rltk, RGB};
-use std::cmp::{max, min};
 
 pub fn new_map_cellular(max_rooms: u32) {
     let worlds = WorldInfo::default();
@@ -18,12 +17,10 @@ pub fn generator_rooms_vector(max_rooms: u32, worlds: &WorldInfo) -> Vec<Rect> {
     for _ in 0..max_rooms {
         let w = rng.range(min_size, max_size);
         let h = rng.range(min_size, max_size);
-        let x = rng.range(0, worlds.width);
-        let y = rng.range(0, worlds.height);
-        let new_room = Rect::new(x, y, w, h);
-        rect_list.append(new_room);
-
+        let x = rng.range(0, worlds.width - max_size as u32 - 1);
+        let y = rng.range(0, worlds.height - max_size as u32 - 1);
+        let new_room = Rect::new(x, y, w as u32, h as u32);
+        rect_list.push(new_room);
     }
     rect_list
-    
 }

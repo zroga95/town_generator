@@ -62,8 +62,8 @@ pub fn new_map_test() -> Vec<TileType> {
     let mut rng = rltk::RandomNumberGenerator::new();
 
     for _i in 0..400 {
-        let x = rng.roll_dice(1, 79);
-        let y = rng.roll_dice(1, 49);
+        let x = rng.roll_dice(1, 79) as u32;
+        let y = rng.roll_dice(1, 49) as u32;
         let idx = xy_idx(x, y);
         if idx != xy_idx(40, 25) {
             map[idx] = TileType::Wall;
@@ -115,7 +115,7 @@ pub fn new_map_clustered_rooms(
 
     // apply_room_to_map(&base_room, &mut map);
     // temporary init
-    let mut base_room = Rect::new(-1, -1, -1, -1);
+    let mut base_room = Rect::new(0, 0, 0, 0);
     for _ in 0..row_size {
         let w = rng.range(MIN_SIZE, MAX_SIZE);
 
