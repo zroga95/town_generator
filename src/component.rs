@@ -4,8 +4,8 @@ use specs_derive::*;
 
 #[derive(Component)]
 pub struct Position {
-    pub x: i32,
-    pub y: i32,
+    pub x: u32,
+    pub y: u32,
 }
 
 #[derive(Component)]

@@ -1,13 +1,13 @@
 #[derive(Copy, Clone)]
 pub struct Rect {
-    pub x1: i32,
-    pub x2: i32,
-    pub y1: i32,
-    pub y2: i32,
+    pub x1: u32,
+    pub x2: u32,
+    pub y1: u32,
+    pub y2: u32,
 }
 
 impl Rect {
-    pub fn new(x: i32, y: i32, w: i32, h: i32) -> Rect {
+    pub fn new(x: u32, y: u32, w: u32, h: u32) -> Rect {
         Rect {
             x1: x,
             y1: y,
@@ -24,7 +24,7 @@ impl Rect {
             && self.y2 >= other.y1
     }
 
-    pub fn center(&self) -> (i32, i32) {
+    pub fn center(&self) -> (u32, u32) {
         ((self.x1 + self.x2) / 2, (self.y1 + self.y2) / 2)
     }
 }

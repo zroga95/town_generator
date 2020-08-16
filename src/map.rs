@@ -4,6 +4,18 @@ use std::cmp::{max, min};
 
 // TODO: Figure out how to handle out of bounds writes to the Tile vec
 // TODO: Make world dims not magic numbers
+pub struct WorldInfo {
+    pub width: u32,
+    pub height: u32,
+}
+impl Default for WorldInfo {
+    fn default() -> Self {
+        WorldInfo {
+            width: 80,
+            height: 50,
+        }
+    }
+}
 
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]
 pub enum TileType {
@@ -11,15 +23,15 @@ pub enum TileType {
     Floor,
 }
 
-pub fn xy_idx(x: i32, y: i32) -> usize {
+pub fn xy_idx(x: u32, y: u32) -> usize {
     (y as usize * 80) + x as usize
 }
 
 #[allow(unused)]
-pub fn idx_to_xy(idx: usize) -> (i32, i32) {
+pub fn idx_to_xy(idx: usize) -> (u32, u32) {
     let x = idx % 80;
     let y = idx / 80;
-    (x as i32, y as i32)
+    (x as u32, y as u32)
 }
 
 #[allow(unused)]
@@ -71,7 +83,7 @@ fn apply_room_to_map(room: &Rect, map: &mut [TileType]) {
 }
 
 /// Builds floors between `x1` and `x2` at `y`
-fn apply_horizontal_tunnel(map: &mut [TileType], x1: i32, x2: i32, y: i32) {
+fn apply_horizontal_tunnel(map: &mut [TileType], x1: u32, x2: u32, y: u32) {
     for x in min(x1, x2)..=max(x1, x2) {
         let idx = xy_idx(x, y);
         assert!(idx < 80 * 50);
@@ -80,7 +92,7 @@ fn apply_horizontal_tunnel(map: &mut [TileType], x1: i32, x2: i32, y: i32) {
 }
 
 /// Builds floors between `y1` and `y2` at `x`
-fn apply_vertical_tunnel(map: &mut [TileType], y1: i32, y2: i32, x: i32) {
+fn apply_vertical_tunnel(map: &mut [TileType], y1: u32, y2: u32, x: u32) {
     for y in min(y1, y2)..=max(y1, y2) {
         let idx = xy_idx(x, y);
         assert!(idx < 80 * 50);
@@ -89,16 +101,16 @@ fn apply_vertical_tunnel(map: &mut [TileType], y1: i32, y2: i32, x: i32) {
 }
 
 pub fn new_map_clustered_rooms(
-    #[allow(unused)] dir: i32,
-    room_count: i32,
+    #[allow(unused)] dir: u32,
+    room_count: u32,
 ) -> (Vec<Rect>, Vec<TileType>) {
     let mut map = vec![TileType::Wall; 80 * 50];
 
     let mut rooms: Vec<Rect> = Vec::new();
-    const MIN_SIZE: i32 = 6;
-    const MAX_SIZE: i32 = 10;
+    const MIN_SIZE: u32 = 6;
+    const MAX_SIZE: u32 = 10;
 
-    let row_size: i32 = (room_count as f64).sqrt() as i32;
+    let row_size: u32 = (room_count as f64).sqrt() as u32;
     let mut rng = RandomNumberGenerator::new();
 
     // apply_room_to_map(&base_room, &mut map);
@@ -165,10 +177,12 @@ pub fn new_map_clustered_rooms(
                 let (prev_x, prev_y) = rooms.last().unwrap().center();
                 // 50-50 chance of what order the tunnels get built in
                 if rng.range(0, 2) == 1 {
+                    for _ in 0..rooms.len() {}
+
                     apply_horizontal_tunnel(&mut map, prev_x, new_x, prev_y);
                     apply_vertical_tunnel(&mut map, prev_y, new_y, new_x);
                 } else {
-                    apply_vertical_tunnel(&mut map, prev_y, new_y, prev_x);
+                    // apply_vertical_tunnel(&mut map, prev_y, new_y, prev_x);
                     apply_horizontal_tunnel(&mut map, prev_x, new_x, new_y);
                 }
 
@@ -185,14 +199,13 @@ pub fn new_map_clustered_rooms(
 
 /// Returns the coords for the next room, given a room and the side to build on
 // TODO: Make `side` an enum
-pub fn side_switcher(sides: Side, room: Rect) -> (i32, i32) {
+pub fn side_switcher(sides: Side, room: Rect) -> (u32, u32) {
     let mut rng = RandomNumberGenerator::new();
     match sides {
         Side::Up => (rng.range(room.x1 - 3, room.x2 + 3), room.y1 - 1), // up
         Side::Left => (room.x1 - 1, rng.range(room.y1 - 3, room.y2 + 3)), // left
         Side::Down => (rng.range(room.x1 - 3, room.x1 + 3), room.y2 + 1), // below
         Side::Right => (room.x2 + 1, rng.range(room.y1 - 3, room.y1 + 3)), // right
-        //_ => unreachable!(),
     }
 }
 
@@ -292,9 +305,9 @@ mod tests {
         // Using a struct instead of a tuple to have explicit names
         #[derive(Debug)]
         struct Example {
-            x: i32,
-            y1: i32,
-            y2: i32,
+            x: u32,
+            y1: u32,
+            y2: u32,
         }
         // All the differnet examples to test
         let examples = vec![
@@ -336,9 +349,9 @@ mod tests {
     fn test_apply_horizontal_tunnel() {
         #[derive(Debug)]
         struct Example {
-            x1: i32,
-            x2: i32,
-            y: i32,
+            x1: u32,
+            x2: u32,
+            y: u32,
         }
         // All the differnet examples to test
         let examples = vec![
