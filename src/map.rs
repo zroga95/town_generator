@@ -22,6 +22,13 @@ pub fn idx_to_xy(idx: usize) -> (i32, i32) {
     (x as i32, y as i32)
 }
 
+#[allow(unused)]
+pub enum Side {
+    Up,
+    Down,
+    Left,
+    Right,
+}
 /// Makes a map with solid boundaries and 400 randomly placed walls. No
 /// guarantees that it won't look awful.
 #[allow(unused)]
@@ -111,8 +118,8 @@ pub fn new_map_clustered_rooms(
         } else {
             // start a new row of rooms by finding coords for room below previous base
             // room
-            let (x, y) = side_switcher(2, base_room);
-            let new_room = Rect::new(x, y + 1, w, h);
+            let (x, y) = side_switcher(Side::Down, base_room);
+            let new_room = Rect::new(x, y, w, h);
             apply_vertical_tunnel(
                 &mut map,
                 // TODO: this causes all the vertical tunnels to be at the same x
@@ -131,7 +138,7 @@ pub fn new_map_clustered_rooms(
         println!("{:?}", (border_room.x1, border_room.x2, "B"));
         // build a row of rooms
         for _ in 0..row_size {
-            let (x, y) = side_switcher(3, border_room);
+            let (x, y) = side_switcher(Side::Right, border_room);
             let w = rng.range(MIN_SIZE, MAX_SIZE);
             let h = rng.range(MIN_SIZE, MAX_SIZE);
             println!("Room to right: {:?}", (x, y, w, h));
@@ -178,14 +185,14 @@ pub fn new_map_clustered_rooms(
 
 /// Returns the coords for the next room, given a room and the side to build on
 // TODO: Make `side` an enum
-pub fn side_switcher(side: i32, room: Rect) -> (i32, i32) {
+pub fn side_switcher(sides: Side, room: Rect) -> (i32, i32) {
     let mut rng = RandomNumberGenerator::new();
-    match side {
-        0 => (rng.range(room.x1 - 3, room.x2 + 3), room.y1 - 1), // up
-        1 => (room.x1 - 1, rng.range(room.y1 - 3, room.y2 + 3)), // left
-        2 => (rng.range(room.x1 - 3, room.x1 + 3), room.y2 + 1), // below
-        3 => (room.x2 + 1, rng.range(room.y1 - 3, room.y1 + 3)), // right
-        _ => unreachable!(),
+    match sides {
+        Side::Up => (rng.range(room.x1 - 3, room.x2 + 3), room.y1 - 1), // up
+        Side::Left => (room.x1 - 1, rng.range(room.y1 - 3, room.y2 + 3)), // left
+        Side::Down => (rng.range(room.x1 - 3, room.x1 + 3), room.y2 + 1), // below
+        Side::Right => (room.x2 + 1, rng.range(room.y1 - 3, room.y1 + 3)), // right
+        //_ => unreachable!(),
     }
 }
 
